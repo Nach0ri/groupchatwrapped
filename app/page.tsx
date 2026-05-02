@@ -21,7 +21,7 @@ export default function Home() {
             Wrapped.
           </h1>
           <p className="text-lg text-white/70 mt-2">
-            drop your WhatsApp chat. see your group's wrapped.
+            drop your WhatsApp chat. to see your group's wrapped.
           </p>
         </div>
 

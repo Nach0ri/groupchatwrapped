@@ -7,7 +7,7 @@ Drop a WhatsApp_chat.txt (.zip file) export, get a Spotify-Wrapped-style story s
 What it does
 -
 
-Five cards, each with its own bold gradient, swipe-through.
+Cards, each with its own bold gradient, swipe-through.
 
   1. Title card. Total messages, days active, date range
   2. The Yapper. Top sender, percent share, top emojis, AI roast
