@@ -15,7 +15,7 @@ export function TitleCard({ group }: TitleCardProps) {
       cardLabel="2026"
       filename="gcw-title"
     >
-      <div className="flex flex-col gap-3 animate-float-up">
+      <div className="flex flex-col items-center text-center gap-3 animate-float-up">
         <p className="text-sm uppercase tracking-widest opacity-70">
           your group chat,
         </p>
@@ -24,7 +24,7 @@ export function TitleCard({ group }: TitleCardProps) {
         </h2>
       </div>
 
-      <div className="mt-12 flex flex-col gap-6 animate-float-up [animation-delay:120ms]">
+      <div className="mt-12 flex flex-col items-center text-center gap-6 animate-float-up [animation-delay:120ms]">
         <div>
           <p className="text-7xl font-black leading-none tracking-tighter">
             {fmtNumber(group.total)}
@@ -42,7 +42,7 @@ export function TitleCard({ group }: TitleCardProps) {
         </div>
       </div>
 
-      <p className="mt-10 text-xs opacity-60 italic animate-float-up [animation-delay:240ms]">
+      <p className="mt-10 text-center text-xs opacity-60 italic animate-float-up [animation-delay:240ms]">
         tap to begin →
       </p>
     </CardShell>
