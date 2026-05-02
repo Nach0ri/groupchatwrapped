@@ -25,6 +25,7 @@ import type { PromptStats } from "@/lib/llm/prompt";
 interface WrappedDeckProps {
   stats: ComputedStats;
   permalinkPrefilled?: string;
+  permalinkId?: string;
   onRestart?: () => void;
 }
 
@@ -106,6 +107,7 @@ function rolesPayload(
 export function WrappedDeck({
   stats,
   permalinkPrefilled,
+  permalinkId,
   onRestart,
 }: WrappedDeckProps) {
   const [verdict, setVerdict] = useState<VerdictResponse | null>(null);
@@ -230,6 +232,9 @@ export function WrappedDeck({
         key="final"
         onRestart={onRestart}
         onCreatePermalink={createPermalink}
+        summaryHref={
+          permalinkId ? `/w/${permalinkId}/summary` : "/wrapped/summary"
+        }
       />,
     );
 
@@ -242,6 +247,7 @@ export function WrappedDeck({
     verdictFailed,
     onRestart,
     permalinkPrefilled,
+    permalinkId,
   ]);
 
   return (

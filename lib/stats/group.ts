@@ -42,12 +42,15 @@ export function computeGroup(messages: Message[]): GroupStats {
 
   const byDay = new Map<string, number>();
   const byHour = new Array(24).fill(0);
+  const hourDowDist = new Array(168).fill(0);
   const ngramCounts = new Map<string, number>();
 
   for (const m of messages) {
     const dKey = isoDate(m.ts);
     byDay.set(dKey, (byDay.get(dKey) ?? 0) + 1);
     byHour[m.ts.getHours()]++;
+    const dow = (m.ts.getDay() + 6) % 7;
+    hourDowDist[dow * 24 + m.ts.getHours()]++;
     const tokens = tokenize(m.body);
     for (let n = 2; n <= 4; n++) {
       for (let i = 0; i + n <= tokens.length; i++) {
@@ -84,5 +87,6 @@ export function computeGroup(messages: Message[]): GroupStats {
     peakDay,
     peakHour,
     topNgrams,
+    hourDowDist,
   };
 }

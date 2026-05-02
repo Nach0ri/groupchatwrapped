@@ -7,11 +7,13 @@ import Link from "next/link";
 interface FinalShareCardProps {
   onRestart?: () => void;
   onCreatePermalink?: () => Promise<string | null>;
+  summaryHref?: string;
 }
 
 export function FinalShareCard({
   onRestart,
   onCreatePermalink,
+  summaryHref = "/wrapped/summary",
 }: FinalShareCardProps) {
   const [permalinkState, setPermalinkState] = useState<
     "idle" | "creating" | "ready" | "failed"
@@ -115,6 +117,13 @@ export function FinalShareCard({
           className="rounded-full border-2 border-zinc-900/20 py-3.5 px-6 text-sm sm:text-base font-bold text-center hover:bg-white/30 transition"
         >
           wrap another chat
+        </Link>
+        <Link
+          href={summaryHref}
+          onClick={(e) => e.stopPropagation()}
+          className="text-xs text-center opacity-60 hover:opacity-100 underline underline-offset-4 mt-1"
+        >
+          see all stats →
         </Link>
       </div>
     </CardShell>

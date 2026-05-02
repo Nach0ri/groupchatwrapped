@@ -45,6 +45,7 @@ export interface GroupStats {
   peakDay: { dateISO: string; count: number };
   peakHour: { hour: number; count: number };
   topNgrams: { phrase: string; count: number }[];
+  hourDowDist?: number[];
 }
 
 export interface ComputedStats {
