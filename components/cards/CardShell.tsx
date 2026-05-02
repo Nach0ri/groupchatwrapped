@@ -46,23 +46,26 @@ export function CardShell({
   return (
     <div
       ref={ref}
-      className={`relative aspect-[9/16] w-full max-w-[460px] rounded-3xl overflow-hidden flex flex-col p-8 ${textColor}`}
+      className={`relative aspect-[9/16] w-full max-w-[460px] rounded-3xl overflow-hidden flex flex-col p-6 sm:p-8 ${textColor}`}
       style={{ background: gradient }}
     >
-      <div className="flex items-center justify-between text-xs uppercase tracking-[0.25em] opacity-70">
-        <span>{cardLabel}</span>
-        <span>group chat wrapped</span>
+      <div className="text-[10px] sm:text-xs uppercase tracking-[0.3em] opacity-70 font-medium">
+        {cardLabel}
       </div>
 
-      <div className="flex-1 flex flex-col justify-center">{children}</div>
+      <div className="flex-1 flex flex-col justify-center min-h-0">
+        {children}
+      </div>
 
-      <div className="flex items-center justify-between text-xs opacity-70">
-        <span>2026</span>
+      <div className="flex items-end justify-between gap-2">
+        <span className="text-[10px] sm:text-xs uppercase tracking-[0.25em] opacity-60 font-medium">
+          groupchatwrapped
+        </span>
         <button
           onClick={onDownload}
           disabled={downloading}
           aria-label="download as image"
-          className="size-8 rounded-full bg-white/15 hover:bg-white/25 flex items-center justify-center disabled:opacity-50"
+          className="shrink-0 size-9 rounded-full bg-white/20 hover:bg-white/35 backdrop-blur flex items-center justify-center disabled:opacity-50 transition"
         >
           <Download className="size-4" />
         </button>

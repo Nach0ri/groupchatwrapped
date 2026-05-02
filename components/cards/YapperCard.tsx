@@ -18,22 +18,24 @@ export function YapperCard({ yapper, totalMessages, roast }: YapperCardProps) {
       filename={`gcw-yapper-${yapper.name.toLowerCase()}`}
     >
       <div className="flex flex-col gap-2 animate-float-up">
-        <p className="text-sm uppercase tracking-widest opacity-60">
+        <p className="text-xs sm:text-sm uppercase tracking-widest opacity-60">
           biggest yapper
         </p>
-        <h2 className="text-7xl font-black leading-none tracking-tighter">
+        <h2 className="text-6xl sm:text-7xl font-black leading-none tracking-tighter break-words">
           {yapper.name}
         </h2>
       </div>
 
-      <div className="mt-10 flex items-baseline gap-3 animate-float-up [animation-delay:120ms]">
-        <span className="text-[7rem] font-black leading-none tracking-tighter">
+      <div className="mt-8 sm:mt-10 flex flex-col gap-1 animate-float-up [animation-delay:120ms]">
+        <span className="text-[5.5rem] sm:text-[7rem] font-black leading-none tracking-tighter">
           {pct}%
         </span>
-        <span className="text-xl opacity-70">of all messages</span>
+        <span className="text-base sm:text-xl opacity-70">
+          of all messages
+        </span>
       </div>
 
-      <div className="mt-6 flex flex-col gap-2 text-sm opacity-80 animate-float-up [animation-delay:240ms]">
+      <div className="mt-5 sm:mt-6 flex flex-col gap-1.5 text-xs sm:text-sm opacity-80 animate-float-up [animation-delay:240ms]">
         <p>
           {yapper.count.toLocaleString()} of {totalMessages.toLocaleString()}{" "}
           messages came from this one.
@@ -44,8 +46,8 @@ export function YapperCard({ yapper, totalMessages, roast }: YapperCardProps) {
       </div>
 
       {roast && (
-        <p className="mt-6 italic text-base opacity-90 animate-float-up [animation-delay:360ms]">
-          "{roast}"
+        <p className="mt-5 sm:mt-6 italic text-sm sm:text-base opacity-90 animate-float-up [animation-delay:360ms]">
+          &ldquo;{roast}&rdquo;
         </p>
       )}
     </CardShell>

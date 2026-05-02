@@ -18,31 +18,31 @@ export function GhostCard({ ghost, roast }: GhostCardProps) {
       textColor="text-zinc-900"
     >
       <div className="flex flex-col gap-2 animate-float-up">
-        <p className="text-sm uppercase tracking-widest opacity-70">
+        <p className="text-xs sm:text-sm uppercase tracking-widest opacity-70">
           ghost king
         </p>
-        <h2 className="text-7xl font-black leading-none tracking-tighter">
+        <h2 className="text-6xl sm:text-7xl font-black leading-none tracking-tighter break-words">
           {ghost.name}
         </h2>
       </div>
 
-      <div className="mt-10 flex flex-col gap-2 animate-float-up [animation-delay:120ms]">
-        <p className="text-sm uppercase tracking-widest opacity-70">
+      <div className="mt-8 sm:mt-10 flex flex-col gap-1 animate-float-up [animation-delay:120ms]">
+        <p className="text-xs sm:text-sm uppercase tracking-widest opacity-70">
           median reply time
         </p>
-        <p className="text-[7rem] font-black leading-none tracking-tighter">
+        <p className="text-[5.5rem] sm:text-[7rem] font-black leading-none tracking-tighter">
           {fmtDuration(ghost.latencyP50Sec)}
         </p>
       </div>
 
-      <div className="mt-6 flex flex-col gap-1 text-sm opacity-80 animate-float-up [animation-delay:240ms]">
+      <div className="mt-5 sm:mt-6 flex flex-col gap-1 text-xs sm:text-sm opacity-80 animate-float-up [animation-delay:240ms]">
         <p>longest ghost: {fmtDuration(ghost.longestGhostSec)}</p>
         <p>messages sent: {ghost.count.toLocaleString()}</p>
       </div>
 
       {roast && (
-        <p className="mt-6 italic text-base opacity-90 animate-float-up [animation-delay:360ms]">
-          "{roast}"
+        <p className="mt-5 sm:mt-6 italic text-sm sm:text-base opacity-90 animate-float-up [animation-delay:360ms]">
+          &ldquo;{roast}&rdquo;
         </p>
       )}
     </CardShell>

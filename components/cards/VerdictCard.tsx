@@ -19,16 +19,16 @@ export function VerdictCard({ verdict, loading, failed }: VerdictCardProps) {
       cardLabel="The Verdict"
       filename="gcw-verdict"
     >
-      <div className="flex flex-col gap-3 animate-float-up">
-        <p className="text-sm uppercase tracking-widest opacity-70">
+      <div className="flex flex-col gap-2 animate-float-up">
+        <p className="text-xs sm:text-sm uppercase tracking-widest opacity-70">
           official verdict
         </p>
-        <h2 className="text-5xl font-black leading-[0.9] tracking-tight">
+        <h2 className="text-4xl sm:text-5xl font-black leading-[0.95] tracking-tight">
           your vibe is —
         </h2>
       </div>
 
-      <div className="mt-10 min-h-[10rem] animate-float-up [animation-delay:120ms]">
+      <div className="mt-8 sm:mt-10 animate-float-up [animation-delay:120ms]">
         {loading && !verdict ? (
           <div className="flex flex-col gap-3">
             <div className="h-4 rounded bg-white/20 animate-pulse w-full" />
@@ -40,7 +40,7 @@ export function VerdictCard({ verdict, loading, failed }: VerdictCardProps) {
             </p>
           </div>
         ) : (
-          <p className="text-2xl font-medium leading-snug">{text}</p>
+          <p className="text-xl sm:text-2xl font-medium leading-snug">{text}</p>
         )}
       </div>
     </CardShell>
