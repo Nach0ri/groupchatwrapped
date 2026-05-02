@@ -21,7 +21,8 @@ export function CardShell({
   const ref = useRef<HTMLDivElement>(null);
   const [downloading, setDownloading] = useState(false);
 
-  const onDownload = async () => {
+  const onDownload = async (e: React.MouseEvent) => {
+    e.stopPropagation();
     if (!ref.current) return;
     setDownloading(true);
     try {
