@@ -13,6 +13,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://groupchatwrapped.vercel.app"),
   title: "Group Chat Wrapped",
   description:
     "Drop your WhatsApp chat. See your group's wrapped. Your chat never leaves your browser.",
