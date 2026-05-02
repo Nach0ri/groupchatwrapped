@@ -2,9 +2,7 @@ Group Chat Wrapped
 
 Live: https://groupchatwrapped.vercel.app
 
-Drop a WhatsApp _chat.txt (or iPhone .zip) export, get a Spotify-Wrapped-style story sequence revealing who's the biggest yapper, the ghost king, and the actual vibe of your groupchat. Each card is screenshot-able and forwardable to the chat in question.
-
-Built for HackMelbourne Trend Hacker (1-3 May 2026).
+Drop a WhatsApp_chat.txt (.zip file) export, get a Spotify-Wrapped-style story sequence revealing who's the biggest yapper, the ghost king, and the actual vibe of your groupchat. Each card is screenshot-able and forwardable to the chat in question.
 
 What it does
 -
