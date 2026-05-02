@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
+import { X } from "lucide-react";
 import { CardDeck } from "@/components/CardDeck";
 import { TitleCard } from "@/components/cards/TitleCard";
 import { YapperCard } from "@/components/cards/YapperCard";
@@ -110,9 +112,27 @@ export function WrappedDeck({
   permalinkId,
   onRestart,
 }: WrappedDeckProps) {
+  const router = useRouter();
   const [verdict, setVerdict] = useState<VerdictResponse | null>(null);
   const [verdictLoading, setVerdictLoading] = useState(true);
   const [verdictFailed, setVerdictFailed] = useState(false);
+
+  const handleExit = () => {
+    onRestart?.();
+    router.push("/");
+  };
+
+  useEffect(() => {
+    const handle = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        e.preventDefault();
+        handleExit();
+      }
+    };
+    window.addEventListener("keydown", handle);
+    return () => window.removeEventListener("keydown", handle);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const roleSlots = useMemo(() => computeRoles(stats), [stats]);
 
@@ -251,7 +271,14 @@ export function WrappedDeck({
   ]);
 
   return (
-    <main className="flex-1 flex flex-col items-center justify-center px-4 py-6 gap-4">
+    <main className="flex-1 flex flex-col items-center justify-center px-4 py-6 gap-4 relative">
+      <button
+        onClick={handleExit}
+        aria-label="exit to home"
+        className="absolute top-4 right-4 size-10 rounded-full bg-white/10 hover:bg-white/20 backdrop-blur flex items-center justify-center text-white/80 hover:text-white transition z-50"
+      >
+        <X className="size-5" />
+      </button>
       <CardDeck cards={cards} />
     </main>
   );
