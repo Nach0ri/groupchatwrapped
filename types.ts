@@ -31,6 +31,10 @@ export interface PerPersonStats {
   convStarters: number;
   longestGhostSec: number | null;
   beefCount: number;
+  swearCount: number;
+  allCapsCount: number;
+  lowercaseMsgRatio: number;
+  exclaimCount: number;
 }
 
 export interface GroupStats {
@@ -50,7 +54,15 @@ export interface ComputedStats {
   locale: Locale;
 }
 
+export type RoleKey =
+  | "yapper"
+  | "ghost"
+  | "beef_starter"
+  | "nonchalant"
+  | "unhinged";
+
 export interface VerdictResponse {
   group_verdict: string;
   per_person_roasts: Record<string, string>;
+  role_roasts?: Partial<Record<RoleKey, string>>;
 }

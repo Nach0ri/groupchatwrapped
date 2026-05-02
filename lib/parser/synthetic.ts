@@ -8,31 +8,33 @@ interface Persona {
   laughRate: number;
   replySpeedSec: [number, number];
   ghostingChance: number;
+  swearRate: number;
+  capsRate: number;
+  signaturePhraseRate: number;
 }
 
 const SLANG = [
-  "yo",
-  "lol",
-  "bro",
-  "no way",
-  "lmaoooo",
-  "stop",
-  "the way",
-  "lowkey",
-  "no thoughts",
-  "deadass",
-  "wait",
-  "nah",
-  "fr",
-  "bet",
-  "ok bet",
-  "real",
-  "literally",
-  "i'm screaming",
-  "pls",
-  "tweaking",
-  "aura",
-  "mid",
+  "yo", "lol", "bro", "stop", "lowkey", "no thoughts", "deadass", "wait",
+  "nah", "fr", "bet", "ok bet", "real", "literally", "i'm screaming", "pls",
+  "tweaking", "aura", "mid", "lmaoooo", "the way",
+];
+
+const SIGNATURE_PHRASE = "no way";
+const SWEARS = [
+  "this is bullshit",
+  "fuck this",
+  "i'm pissed",
+  "wtf",
+  "dammit",
+  "bro shut up",
+];
+const CAPS_RANTS = [
+  "WHY ARE YOU LIKE THIS",
+  "I CANNOT BELIEVE THIS",
+  "STOP TALKING",
+  "I'M LOSING IT",
+  "WAKE UP YALL",
+  "WHO LET YOU COOK",
 ];
 
 const EMOJIS = ["😂", "💀", "🥹", "🙏", "🔥", "✨", "😭", "👀", "🤡", "😩", "🫶", "🥲", "🤣"];
@@ -61,12 +63,15 @@ const FILLER = [
 const PERSONAS: Persona[] = [
   {
     name: "Mia",
-    weight: 0.45,
+    weight: 0.4,
     msgLengthRange: [4, 22],
     emojiRate: 0.55,
     laughRate: 0.4,
     replySpeedSec: [10, 240],
     ghostingChance: 0.05,
+    swearRate: 0.0,
+    capsRate: 0.0,
+    signaturePhraseRate: 0.18,
   },
   {
     name: "Jay",
@@ -76,24 +81,33 @@ const PERSONAS: Persona[] = [
     laughRate: 0.05,
     replySpeedSec: [600, 7200],
     ghostingChance: 0.4,
+    swearRate: 0.0,
+    capsRate: 0.0,
+    signaturePhraseRate: 0.0,
   },
   {
     name: "Ash",
     weight: 0.3,
     msgLengthRange: [3, 18],
-    emojiRate: 0.3,
-    laughRate: 0.25,
-    replySpeedSec: [30, 1200],
+    emojiRate: 0.18,
+    laughRate: 0.12,
+    replySpeedSec: [60, 1500],
     ghostingChance: 0.15,
+    swearRate: 0.0,
+    capsRate: 0.0,
+    signaturePhraseRate: 0.02,
   },
   {
     name: "Riley",
-    weight: 0.2,
-    msgLengthRange: [3, 15],
-    emojiRate: 0.4,
-    laughRate: 0.3,
-    replySpeedSec: [60, 1800],
+    weight: 0.25,
+    msgLengthRange: [3, 18],
+    emojiRate: 0.35,
+    laughRate: 0.25,
+    replySpeedSec: [60, 1500],
     ghostingChance: 0.1,
+    swearRate: 0.07,
+    capsRate: 0.06,
+    signaturePhraseRate: 0.05,
   },
 ];
 
@@ -124,6 +138,12 @@ function pickFrom<T>(rng: () => number, arr: T[]): T {
 }
 
 function generateBody(persona: Persona, rng: () => number): string {
+  if (rng() < persona.capsRate) {
+    return pickFrom(rng, CAPS_RANTS);
+  }
+  if (rng() < persona.swearRate) {
+    return pickFrom(rng, SWEARS);
+  }
   const wordCount = randInt(rng, persona.msgLengthRange[0], persona.msgLengthRange[1]);
   const words: string[] = [];
   for (let i = 0; i < wordCount; i++) {
@@ -131,6 +151,9 @@ function generateBody(persona: Persona, rng: () => number): string {
     else words.push(pickFrom(rng, FILLER).split(" ")[randInt(rng, 0, 2)] ?? "lol");
   }
   let body = words.join(" ");
+  if (rng() < persona.signaturePhraseRate) {
+    body = SIGNATURE_PHRASE + " " + body;
+  }
   if (rng() < persona.laughRate) {
     const laugh = pickFrom(rng, ["haha", "lmao", "lolll", "hahahah", "omg", "i'm dying"]);
     body += " " + laugh;
@@ -210,12 +233,19 @@ export function generateSyntheticChat(opts: SynthOptions = {}): string {
 
   for (let i = 0; i < count; i++) {
     const persona = pickPersona(rng);
-    const gapSec =
-      lastPersona && lastPersona.name === persona.name
-        ? randInt(rng, 5, 90)
-        : randInt(rng, persona.replySpeedSec[0], persona.replySpeedSec[1]);
+
+    let gapSec: number;
+    if (lastPersona && lastPersona.name === persona.name) {
+      gapSec = randInt(rng, 5, 90);
+    } else {
+      gapSec = randInt(rng, persona.replySpeedSec[0], persona.replySpeedSec[1]);
+    }
+    if (i > 0 && i % 28 === 0) {
+      gapSec += randInt(rng, 7 * 3600, 14 * 3600);
+    }
     cursor += gapSec * 1000;
     if (cursor > endTime) cursor = endTime - randInt(rng, 60_000, 600_000);
+
     const ts = new Date(cursor);
     const body = generateBody(persona, rng);
     lines.push(formatLine(format, ts, persona.name, body));

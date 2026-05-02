@@ -2,6 +2,14 @@ import { writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { generateSyntheticChat } from "../lib/parser/synthetic";
 import { computeStats } from "../lib/stats/compute";
+import {
+  pickBeefStarter,
+  pickGhost,
+  pickNonchalant,
+  pickPhraseOfYear,
+  pickUnhinged,
+  pickYapper,
+} from "../lib/stats/scores";
 
 function fmtSec(s: number | null): string {
   if (s === null) return "n/a";
@@ -47,15 +55,31 @@ function runOne(label: string, format: "iphone" | "android", seed: number) {
       `  ${p.name.padEnd(7)} count=${String(p.count).padEnd(4)} ` +
         `${p.percent.toFixed(1)}% ` +
         `lat50=${fmtSec(p.latencyP50Sec).padEnd(6)} ` +
-        `lat90=${fmtSec(p.latencyP90Sec).padEnd(6)} ` +
         `top=${p.topEmojis.join("") || "-"} ` +
         `laughs=${p.laughs} ` +
-        `len=${p.msgLenAvgChars.toFixed(0)}c ` +
-        `ghost=${fmtSec(p.longestGhostSec)} ` +
-        `beef=${p.beefCount} ` +
-        `starters=${p.convStarters}`,
+        `swears=${p.swearCount} ` +
+        `caps=${p.allCapsCount} ` +
+        `lower=${(p.lowercaseMsgRatio * 100).toFixed(0)}% ` +
+        `bangs=${p.exclaimCount} ` +
+        `beef=${p.beefCount}`,
     );
   }
+
+  console.log("\nrole picks:");
+  console.log(`  yapper:       ${pickYapper(stats.perPerson).name}`);
+  console.log(`  ghost:        ${pickGhost(stats.perPerson)?.name ?? "—"}`);
+  console.log(`  beef_starter: ${pickBeefStarter(stats.perPerson)?.name ?? "—"}`);
+  console.log(`  nonchalant:   ${pickNonchalant(stats.perPerson)?.person.name ?? "—"}`);
+  console.log(`  unhinged:     ${pickUnhinged(stats.perPerson)?.person.name ?? "—"}`);
+
+  const phrase = pickPhraseOfYear(stats.group);
+  console.log(
+    `\nphrase of the year: ${
+      phrase.render
+        ? phrase.phrases.map((p) => `"${p.phrase}"×${p.count}`).join(", ")
+        : "(no clear winner — card hidden)"
+    }`,
+  );
 
   console.log("\ntop n-grams:");
   for (const ng of stats.group.topNgrams) {

@@ -1,19 +1,10 @@
 import type { GroupStats, Message } from "@/types";
 
 const STOPWORDS = new Set([
-  "the","a","an","and","or","but","is","are","was","were","be","been","being",
-  "have","has","had","do","does","did","will","would","could","should","may",
-  "i","you","he","she","it","we","they","me","him","her","us","them","my","your",
-  "his","its","our","their","this","that","these","those","of","in","on","at",
-  "to","for","with","by","from","up","about","into","over","after","before",
-  "under","just","not","no","so","if","then","than","because","while","very",
-  "can","cant","won't","wont","dont","don't","im","i'm","its","it's","there",
-  "what","who","when","where","why","how","all","any","some","more","most",
-  "other","such","only","own","same","too","also","yes","ya","ok","okay",
-  "yeah","yo","u","ur","r","n","lol","lmao","haha","hahaha","like","really",
-  "got","get","gonna","wanna","one","two","know","think","want","go","going",
-  "see","said","say","oh","ah","eh","hi","hey","hello","bye","tho","still",
-  "now","time","day","today","tomorrow","tonight","again",
+  "a","an","and","or","but","of","in","on","at","to","for","with","by","from",
+  "is","are","was","were","be","been","being","have","has","had","do","does",
+  "did","will","would","could","should","may","because","while",
+  "lol","lmao","haha","hahaha","ya","ok","okay","yeah","yo",
 ]);
 
 function tokenize(body: string): string[] {

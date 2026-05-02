@@ -1,4 +1,5 @@
 import { Uploader } from "@/components/Uploader";
+import { HowToExportModal } from "@/components/HowToExportModal";
 
 export default function Home() {
   return (
@@ -12,7 +13,7 @@ export default function Home() {
         }}
       />
 
-      <div className="flex flex-col items-center gap-10 max-w-xl w-full text-center">
+      <div className="flex flex-col items-center gap-8 max-w-xl w-full text-center">
         <div className="flex flex-col gap-3">
           <p className="text-xs uppercase tracking-[0.3em] text-white/40">
             Group Chat
@@ -26,6 +27,8 @@ export default function Home() {
         </div>
 
         <Uploader />
+
+        <HowToExportModal />
 
         <p className="text-xs text-white/40 max-w-sm">
           your chat never leaves your browser. no servers, no storage, no logs.

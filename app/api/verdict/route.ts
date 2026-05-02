@@ -6,10 +6,18 @@ import {
   fallbackVerdict,
   type PromptStats,
 } from "@/lib/llm/prompt";
-import type { VerdictResponse } from "@/types";
+import type { RoleKey, VerdictResponse } from "@/types";
 
 export const runtime = "nodejs";
 export const maxDuration = 30;
+
+const ROLE_KEYS: RoleKey[] = [
+  "yapper",
+  "ghost",
+  "beef_starter",
+  "nonchalant",
+  "unhinged",
+];
 
 function tryParseJSON(text: string): VerdictResponse | null {
   try {
@@ -57,14 +65,14 @@ export async function POST(req: NextRequest) {
   const names = stats.perPerson.map((p) => p.name);
 
   if (!apiKey) {
-    return Response.json(fallbackVerdict(names));
+    return Response.json(fallbackVerdict(names, stats.roles));
   }
 
   try {
     const client = new Anthropic({ apiKey });
     const res = await client.messages.create({
       model: "claude-opus-4-7",
-      max_tokens: 800,
+      max_tokens: 1000,
       system: SYSTEM_PROMPT,
       messages: [{ role: "user", content: buildUserPrompt(stats) }],
     });
@@ -77,6 +85,7 @@ export async function POST(req: NextRequest) {
       const filtered: VerdictResponse = {
         group_verdict: parsed.group_verdict.slice(0, 320),
         per_person_roasts: {},
+        role_roasts: {},
       };
       for (const name of names) {
         const roast = parsed.per_person_roasts[name];
@@ -84,12 +93,19 @@ export async function POST(req: NextRequest) {
           filtered.per_person_roasts[name] = roast.slice(0, 80);
         }
       }
+      const incomingRoles = (parsed.role_roasts ?? {}) as Record<string, unknown>;
+      for (const key of ROLE_KEYS) {
+        const v = incomingRoles[key];
+        if (typeof v === "string" && stats.roles[key]) {
+          filtered.role_roasts![key] = v.slice(0, 80);
+        }
+      }
       return Response.json(filtered);
     }
 
-    return Response.json(fallbackVerdict(names));
+    return Response.json(fallbackVerdict(names, stats.roles));
   } catch (err) {
     console.error("verdict error", err);
-    return Response.json(fallbackVerdict(names));
+    return Response.json(fallbackVerdict(names, stats.roles));
   }
 }

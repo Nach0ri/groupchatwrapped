@@ -1,26 +1,61 @@
 "use client";
 
+import { useState } from "react";
 import { CardShell } from "./CardShell";
 import Link from "next/link";
 
 interface FinalShareCardProps {
   onRestart?: () => void;
+  onCreatePermalink?: () => Promise<string | null>;
 }
 
-export function FinalShareCard({ onRestart }: FinalShareCardProps) {
+export function FinalShareCard({
+  onRestart,
+  onCreatePermalink,
+}: FinalShareCardProps) {
+  const [permalinkState, setPermalinkState] = useState<
+    "idle" | "creating" | "ready" | "failed"
+  >("idle");
+  const [permalink, setPermalink] = useState<string | null>(null);
+  const [shareState, setShareState] = useState<"idle" | "shared">("idle");
+
+  const fallbackUrl = "https://groupchatwrapped.vercel.app";
+
   const onShare = async (e: React.MouseEvent) => {
     e.stopPropagation();
-    const url = "https://groupchatwrapped.vercel.app";
+    const url = permalink ?? fallbackUrl;
     if (navigator.share) {
       try {
         await navigator.share({
           title: "Group Chat Wrapped",
-          text: "wrap your WhatsApp group chat. see who's the yapper.",
+          text: permalink
+            ? "look at this wrapped of our group chat"
+            : "wrap your WhatsApp group chat. see who's the yapper.",
           url,
         });
+        setShareState("shared");
+        setTimeout(() => setShareState("idle"), 2000);
       } catch {}
       return;
     }
+    try {
+      await navigator.clipboard.writeText(url);
+      setShareState("shared");
+      setTimeout(() => setShareState("idle"), 2000);
+    } catch {}
+  };
+
+  const onMakePermalink = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!onCreatePermalink) return;
+    setPermalinkState("creating");
+    const url = await onCreatePermalink();
+    if (!url) {
+      setPermalinkState("failed");
+      return;
+    }
+    setPermalink(url);
+    setPermalinkState("ready");
     try {
       await navigator.clipboard.writeText(url);
     } catch {}
@@ -47,8 +82,30 @@ export function FinalShareCard({ onRestart }: FinalShareCardProps) {
           onClick={onShare}
           className="rounded-full bg-zinc-900 text-white py-3.5 px-6 text-sm sm:text-base font-bold hover:bg-zinc-800 transition"
         >
-          share this site →
+          {shareState === "shared"
+            ? "✓ shared"
+            : permalink
+              ? "share my wrapped →"
+              : "share this site →"}
         </button>
+        {onCreatePermalink && permalinkState !== "ready" && (
+          <button
+            onClick={onMakePermalink}
+            disabled={permalinkState === "creating"}
+            className="rounded-full border-2 border-zinc-900/20 py-3 px-6 text-xs sm:text-sm font-bold text-zinc-900 hover:bg-white/30 transition disabled:opacity-60"
+          >
+            {permalinkState === "creating"
+              ? "creating link…"
+              : permalinkState === "failed"
+                ? "permalink unavailable"
+                : "create permalink to my wrapped"}
+          </button>
+        )}
+        {permalink && (
+          <p className="text-xs text-center opacity-70 break-all">
+            {permalink}
+          </p>
+        )}
         <Link
           href="/"
           onClick={(e) => {

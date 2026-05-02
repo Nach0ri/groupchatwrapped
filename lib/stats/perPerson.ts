@@ -10,6 +10,10 @@ const LAUGH_TOKENS = [
 ];
 const LAUGH_EMOJIS = ["😂", "🤣", "💀"];
 
+const SWEAR_RE =
+  /\b(fuck(?:ing|ed|er)?|shit(?:ty|ting)?|bitch(?:es|ing)?|asshole|damn|dammit|bastard|bullshit|motherfucker|cunt|piss(?:ed)?|dick(?:head)?|prick|wanker|crap|hell|wtf|stfu|fck|sht)\b/gi;
+const ALL_CAPS_WORD_RE = /[A-Z]{4,}/;
+const LETTER_RE = /[A-Za-z]/;
 const TWO_HOURS = 2 * 60 * 60;
 const SIX_HOURS = 6 * 60 * 60;
 
@@ -39,6 +43,14 @@ function countLaughs(body: string): number {
   return count;
 }
 
+function isAllLowercase(body: string): boolean {
+  if (!LETTER_RE.test(body)) return false;
+  for (const ch of body) {
+    if (ch >= "A" && ch <= "Z") return false;
+  }
+  return true;
+}
+
 export function computePerPerson(messages: Message[]): PerPersonStats[] {
   if (!messages.length) return [];
 
@@ -64,6 +76,10 @@ export function computePerPerson(messages: Message[]): PerPersonStats[] {
     let totalEmojis = 0;
     const emojiCounts = new Map<string, number>();
     let laughs = 0;
+    let swearCount = 0;
+    let allCapsCount = 0;
+    let lowercaseMsgs = 0;
+    let exclaimCount = 0;
     const hourDist = new Array(24).fill(0);
     const dowDist = new Array(7).fill(0);
 
@@ -78,6 +94,24 @@ export function computePerPerson(messages: Message[]): PerPersonStats[] {
         for (const e of emojis) emojiCounts.set(e, (emojiCounts.get(e) ?? 0) + 1);
       }
       laughs += countLaughs(m.body);
+
+      const swears = m.body.match(SWEAR_RE);
+      if (swears) swearCount += swears.length;
+
+      if (m.body.length > 6 && ALL_CAPS_WORD_RE.test(m.body)) {
+        const letters = m.body.match(/[A-Za-z]/g) ?? [];
+        const upper = m.body.match(/[A-Z]/g) ?? [];
+        if (letters.length >= 6 && upper.length / letters.length >= 0.6) {
+          allCapsCount++;
+        }
+      }
+
+      if (isAllLowercase(m.body)) lowercaseMsgs++;
+
+      let bangs = 0;
+      for (const ch of m.body) if (ch === "!") bangs++;
+      exclaimCount += bangs;
+
       const h = m.ts.getHours();
       const dow = (m.ts.getDay() + 6) % 7;
       hourDist[h]++;
@@ -124,6 +158,10 @@ export function computePerPerson(messages: Message[]): PerPersonStats[] {
       convStarters,
       longestGhostSec: longestGhost,
       beefCount,
+      swearCount,
+      allCapsCount,
+      lowercaseMsgRatio: lowercaseMsgs / count,
+      exclaimCount,
     });
   }
 
