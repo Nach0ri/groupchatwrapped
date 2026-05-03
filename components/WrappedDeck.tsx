@@ -28,6 +28,7 @@ interface WrappedDeckProps {
   stats: ComputedStats;
   permalinkPrefilled?: string;
   permalinkId?: string;
+  prefetchedVerdict?: VerdictResponse;
   onRestart?: () => void;
 }
 
@@ -110,11 +111,14 @@ export function WrappedDeck({
   stats,
   permalinkPrefilled,
   permalinkId,
+  prefetchedVerdict,
   onRestart,
 }: WrappedDeckProps) {
   const router = useRouter();
-  const [verdict, setVerdict] = useState<VerdictResponse | null>(null);
-  const [verdictLoading, setVerdictLoading] = useState(true);
+  const [verdict, setVerdict] = useState<VerdictResponse | null>(
+    prefetchedVerdict ?? null,
+  );
+  const [verdictLoading, setVerdictLoading] = useState(!prefetchedVerdict);
   const [verdictFailed, setVerdictFailed] = useState(false);
 
   const handleExit = () => {
@@ -137,6 +141,7 @@ export function WrappedDeck({
   const roleSlots = useMemo(() => computeRoles(stats), [stats]);
 
   useEffect(() => {
+    if (prefetchedVerdict) return;
     const ctrl = new AbortController();
     setVerdictLoading(true);
     fetch("/api/verdict", {
@@ -155,7 +160,7 @@ export function WrappedDeck({
         setVerdictLoading(false);
       });
     return () => ctrl.abort();
-  }, [stats, roleSlots]);
+  }, [stats, roleSlots, prefetchedVerdict]);
 
   const createPermalink = async (): Promise<string | null> => {
     if (permalinkPrefilled) return permalinkPrefilled;
@@ -163,7 +168,7 @@ export function WrappedDeck({
       const res = await fetch("/api/share", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(stats),
+        body: JSON.stringify({ stats, verdict: verdict ?? undefined }),
       });
       if (!res.ok) return null;
       const { id } = (await res.json()) as { id: string };
@@ -252,6 +257,7 @@ export function WrappedDeck({
         key="final"
         onRestart={onRestart}
         onCreatePermalink={createPermalink}
+        permalinkBlocked={verdictLoading && !verdict}
         summaryHref={
           permalinkId ? `/w/${permalinkId}/summary` : "/wrapped/summary"
         }

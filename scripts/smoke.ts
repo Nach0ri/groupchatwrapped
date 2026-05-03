@@ -111,12 +111,10 @@ function runOne(label: string, format: "iphone" | "android", seed: number) {
   return text;
 }
 
-const iphoneText = runOne("iPhone format", "iphone", 42);
+runOne("iPhone format", "iphone", 42);
 runOne("Android format", "android", 99);
 
-// also save the iPhone synthetic to public/samples for the UI to ship
-const samplePath = join(process.cwd(), "public", "samples", "sample-chat.txt");
-writeFileSync(samplePath, iphoneText, "utf8");
-console.log(`\n✓ wrote sample to ${samplePath}`);
-
 console.log("\nALL SMOKE TESTS PASSED");
+console.log(
+  "(public/samples/sample-chat.txt is now LLM-generated; run `npm run gen-demo` to regenerate it.)",
+);

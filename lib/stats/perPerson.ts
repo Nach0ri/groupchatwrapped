@@ -12,7 +12,7 @@ const LAUGH_EMOJIS = ["😂", "🤣", "💀"];
 
 const SWEAR_RE =
   /\b(fuck(?:ing|ed|er)?|shit(?:ty|ting)?|bitch(?:es|ing)?|asshole|damn|dammit|bastard|bullshit|motherfucker|cunt|piss(?:ed)?|dick(?:head)?|prick|wanker|crap|hell|wtf|stfu|fck|sht)\b/gi;
-const ALL_CAPS_WORD_RE = /[A-Z]{4,}/;
+const ALL_CAPS_WORD_RE = /[A-Z]{5,}/;
 const LETTER_RE = /[A-Za-z]/;
 const TWO_HOURS = 2 * 60 * 60;
 const SIX_HOURS = 6 * 60 * 60;
@@ -98,10 +98,10 @@ export function computePerPerson(messages: Message[]): PerPersonStats[] {
       const swears = m.body.match(SWEAR_RE);
       if (swears) swearCount += swears.length;
 
-      if (m.body.length > 6 && ALL_CAPS_WORD_RE.test(m.body)) {
+      if (m.body.length > 12 && ALL_CAPS_WORD_RE.test(m.body)) {
         const letters = m.body.match(/[A-Za-z]/g) ?? [];
         const upper = m.body.match(/[A-Z]/g) ?? [];
-        if (letters.length >= 6 && upper.length / letters.length >= 0.6) {
+        if (letters.length >= 10 && upper.length / letters.length >= 0.65) {
           allCapsCount++;
         }
       }

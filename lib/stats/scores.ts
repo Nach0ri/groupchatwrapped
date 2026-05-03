@@ -45,7 +45,14 @@ interface ScoredPerson {
 export function pickNonchalant(
   perPerson: PerPersonStats[],
 ): ScoredPerson | null {
-  const candidates = vibeEligible(perPerson);
+  const yapper = pickYapper(perPerson);
+  const ghost = pickGhost(perPerson);
+  const candidates = perPerson.filter(
+    (p) =>
+      p.count >= 15 &&
+      p.name !== yapper.name &&
+      (!ghost || p.name !== ghost.name),
+  );
   if (!candidates.length) return null;
   const scored = candidates
     .map((p) => {
@@ -70,14 +77,15 @@ export function pickNonchalant(
 export function pickUnhinged(
   perPerson: PerPersonStats[],
 ): ScoredPerson | null {
+  const yapper = pickYapper(perPerson);
   const candidates = vibeEligible(perPerson).filter(
-    (p) => p.swearCount + p.allCapsCount > 0,
+    (p) => p.name !== yapper.name && p.swearCount + p.allCapsCount > 0,
   );
   if (!candidates.length) return null;
   const scored = candidates
     .map((p) => ({
       person: p,
-      score: p.swearCount * 1.0 + p.allCapsCount * 1.5 + p.exclaimCount * 0.05,
+      score: p.swearCount * 4 + p.allCapsCount * 1 + p.exclaimCount * 0.05,
     }))
     .sort((a, b) => b.score - a.score);
   return scored[0];

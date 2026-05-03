@@ -8,12 +8,14 @@ interface FinalShareCardProps {
   onRestart?: () => void;
   onCreatePermalink?: () => Promise<string | null>;
   summaryHref?: string;
+  permalinkBlocked?: boolean;
 }
 
 export function FinalShareCard({
   onRestart,
   onCreatePermalink,
   summaryHref = "/wrapped/summary",
+  permalinkBlocked = false,
 }: FinalShareCardProps) {
   const [permalinkState, setPermalinkState] = useState<
     "idle" | "creating" | "ready" | "failed"
@@ -79,7 +81,7 @@ export function FinalShareCard({
         </h2>
       </div>
 
-      <div className="mt-8 sm:mt-10 flex flex-col gap-3 animate-float-up [animation-delay:120ms]">
+      <div className="relative z-30 mt-8 sm:mt-10 flex flex-col gap-3 animate-float-up [animation-delay:120ms]">
         <button
           onClick={onShare}
           className="rounded-full bg-zinc-900 text-white py-3.5 px-6 text-sm sm:text-base font-bold hover:bg-zinc-800 transition"
@@ -93,14 +95,16 @@ export function FinalShareCard({
         {onCreatePermalink && permalinkState !== "ready" && (
           <button
             onClick={onMakePermalink}
-            disabled={permalinkState === "creating"}
+            disabled={permalinkState === "creating" || permalinkBlocked}
             className="rounded-full border-2 border-zinc-900/20 py-3 px-6 text-xs sm:text-sm font-bold text-zinc-900 hover:bg-white/30 transition disabled:opacity-60"
           >
-            {permalinkState === "creating"
-              ? "creating link…"
-              : permalinkState === "failed"
-                ? "permalink unavailable"
-                : "create permalink to my wrapped"}
+            {permalinkBlocked
+              ? "AI is cooking the verdict…"
+              : permalinkState === "creating"
+                ? "creating link…"
+                : permalinkState === "failed"
+                  ? "permalink unavailable"
+                  : "create permalink to my wrapped"}
           </button>
         )}
         {permalink && (

@@ -28,13 +28,23 @@ export async function POST(req: NextRequest) {
       { status: 503 },
     );
   }
-  let stats: unknown;
+  let payload: unknown;
   try {
-    stats = await req.json();
+    payload = await req.json();
   } catch {
     return Response.json({ error: "invalid_json" }, { status: 400 });
   }
-  if (!stats || typeof stats !== "object") {
+  if (!payload || typeof payload !== "object") {
+    return Response.json({ error: "invalid_payload" }, { status: 400 });
+  }
+  const obj = payload as Record<string, unknown>;
+  const hasNewFormat =
+    "stats" in obj &&
+    obj.stats &&
+    typeof obj.stats === "object" &&
+    "perPerson" in (obj.stats as Record<string, unknown>);
+  const hasOldFormat = "perPerson" in obj && Array.isArray(obj.perPerson);
+  if (!hasNewFormat && !hasOldFormat) {
     return Response.json({ error: "invalid_payload" }, { status: 400 });
   }
 
@@ -43,7 +53,7 @@ export async function POST(req: NextRequest) {
     const key = `w:${id}`;
     const existing = await kv.get(key);
     if (existing) continue;
-    await kv.set(key, stats, { ex: TTL_SECONDS });
+    await kv.set(key, obj, { ex: TTL_SECONDS });
     return Response.json({ id });
   }
   return Response.json({ error: "id_collision" }, { status: 500 });
