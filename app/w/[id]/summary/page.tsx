@@ -2,7 +2,7 @@ import { kv } from "@vercel/kv";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { SummaryPage } from "@/components/SummaryPage";
-import type { ComputedStats } from "@/types";
+import type { ComputedStats, VerdictResponse } from "@/types";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -13,6 +13,17 @@ function kvConfigured(): boolean {
   return Boolean(
     process.env.KV_REST_API_URL && process.env.KV_REST_API_TOKEN,
   );
+}
+
+type StoredOld = ComputedStats;
+type StoredNew = { stats: ComputedStats; verdict?: VerdictResponse };
+type Stored = StoredOld | StoredNew;
+
+function unwrap(data: Stored): { stats: ComputedStats; verdict?: VerdictResponse } {
+  if ("stats" in data) {
+    return { stats: data.stats, verdict: data.verdict };
+  }
+  return { stats: data };
 }
 
 interface PageProps {
@@ -37,10 +48,11 @@ export default async function PermalinkSummaryPage({ params }: PageProps) {
     );
   }
 
-  const data = await kv.get<ComputedStats>(`w:${id}`);
-  if (!data) notFound();
+  const raw = await kv.get<Stored>(`w:${id}`);
+  if (!raw) notFound();
+  const { stats } = unwrap(raw);
 
-  return <SummaryPage stats={data} backHref={`/w/${id}`} />;
+  return <SummaryPage stats={stats} backHref={`/w/${id}`} />;
 }
 
 export async function generateMetadata({ params }: PageProps) {
