@@ -2,35 +2,42 @@ Group Chat Wrapped
 
 Live: https://groupchatwrapped.vercel.app
 
-Drop a WhatsApp_chat.txt (.zip file) export, get a Spotify-Wrapped-style story sequence revealing who's the biggest yapper, the ghost king, and the actual vibe of your groupchat. Each card is screenshot-able and forwardable to the chat in question.
+A Spotify Wrapped, but for your WhatsApp group chat. Drop a `_chat.txt` and get nine swipe-through cards roasting everyone in the chat: the yapper, the ghost, the vibe killer, the most unhinged. Each card screenshots into a clean PNG, and the share button gives you a permalink that re-renders identically for everyone you forward it to.
+
+Built for HackMelbourne Trend Hacker, May 2026.
 
 What it does
 -
 
-Cards, each with its own bold gradient, swipe-through.
+Drop a WhatsApp export (`_chat.txt` or iPhone `.zip`). The parser runs in your browser, then nine cards reveal:
 
-  1. Title card. Total messages, days active, date range
-  2. The Yapper. Top sender, percent share, top emojis, AI roast
-  3. The Ghost. Slowest median replier, longest ghost, AI roast
-  4. The Verdict. Opus 4.7-generated paragraph capturing the chat's vibe
-  5. Share card. Native share / clipboard fallback / restart
+  1. Title: total messages, days active, date range
+  2. The Yapper: top sender, percentage of all messages, top emojis, AI roast
+  3. The Ghost: slowest median replier, longest unanswered message
+  4. The Vibe Killer: most messages sent right before 6+ hour silences
+  5. The Nonchalant: lowest emoji rate, all-lowercase energy, deadpan replies
+  6. Most Unhinged: swears plus ALL CAPS rants
+  7. Phrase of the Season: the inside joke that took over (only renders if there's a clear winner)
+  8. The Verdict: a Gen Z roast specific to your group's vibe
+  9. Share card: share permalink, see detailed stats, wrap another chat
 
-Tap or swipe up to advance. Swipe down or tap "prev" to go back. Each card has a screenshot button that downloads a PNG.
+Tap right to advance, left to go back. Hold to pause auto-advance. The button on each card downloads it as a PNG. There's a separate scrollable summary at `/wrapped/summary` with a 24x7 activity heatmap and full per-person breakdowns.
 
 Privacy
 -
 
-The whole parser runs in your browser. Raw messages never leave your device. Only anonymised aggregate stats (counts, latency percentiles, emoji frequencies) are sent to the verdict API for the AI to roast. No database. No analytics. No cookies beyond Next defaults.
+The parser runs entirely in your browser. Raw messages never leave your device. We send anonymised aggregate stats (counts, percentages, latency percentiles) to the verdict API for the AI to write the roast text. No database, no analytics, no cookies beyond what Next.js needs.
 
-Stack
+Tech
 -
 
   - Next.js 16 App Router on Vercel
   - TypeScript, Tailwind v4, Geist font
-  - motion (framer-motion v12) for the card transitions
+  - motion (formerly framer-motion) for card transitions
   - jszip for iPhone .zip uploads
-  - html-to-image for per-card PNG screenshots
-  - Anthropic Claude Opus 4.7 for verdicts and per-person roasts (server-side)
+  - html-to-image for per-card screenshots
+  - Anthropic SDK for the AI verdicts (server-side, anonymised stats only)
+  - Vercel KV (Upstash Redis) for shareable permalinks
 
 Local dev
 -
@@ -43,7 +50,13 @@ echo "ANTHROPIC_API_KEY=sk-ant-..." > .env.local
 npm run dev
 ```
 
-Run the parser smoke test against synthetic fixtures:
+Generate a fresh demo chat (five personas, 21-day arc):
+
+```
+npm run gen-demo
+```
+
+Run the parser smoke tests against synthetic fixtures:
 
 ```
 npm run smoke
@@ -56,27 +69,9 @@ Deploy
 vercel deploy --prod
 ```
 
-Set ANTHROPIC_API_KEY in the Vercel project env. Production env is what `--prod` deploys use.
+Set `ANTHROPIC_API_KEY` in your Vercel project env. For permalinks, provision a Vercel KV (Upstash for Redis) store via the Vercel dashboard and connect it with the prefix `KV`. Without it, the share button still works but uses the homepage URL as fallback.
 
-Devpost pitch
+Sample chat
 -
 
-Group Chat Wrapped takes your WhatsApp group chat export and turns it into a Spotify-Wrapped-style story sequence — biggest yapper, ghost king, AI-roasted group verdict — that's screenshot-friendly and made to be forwarded back to the chat in question. Parsing happens entirely in the browser so no chat history ever leaves your phone, and the only data we send to the AI is anonymised aggregate stats. Built mobile-first for the social-trends theme: every card is a piece of share-bait designed to land with your group's specific energy.
-
-Test data
--
-
-`public/samples/sample-chat.txt` is a synthetic 200-message chat (4 personas, both iPhone+Android format). The "try a sample chat" button on the landing page loads this directly so reviewers can test the flow without uploading their own.
-
-Screenshots
--
-
-Drop the live URL on iPhone / Android and click "try a sample chat" to see all five cards in sequence.
-
-Roadmap
--
-
-  - Stretch cards: Beef Starter, Top Emoji grid per person, Activity heatmap, n-gram phrase card
-  - Real-export hardening (very old WhatsApp formats, emoji-name participants)
-  - Web Worker parser for chats with more than 50K messages
-  - Custom OG image per result (your group's actual yapper on the share preview)
+The "or try a sample chat" button on the landing page loads a 21-day synthetic group chat between five long-distance friends (yes, including a breakup arc and 3am thesis breakdowns). Use it to test the flow without uploading anything personal.
