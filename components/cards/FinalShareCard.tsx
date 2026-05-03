@@ -11,59 +11,69 @@ interface FinalShareCardProps {
   permalinkBlocked?: boolean;
 }
 
+const FALLBACK_URL = "https://groupchatwrapped.vercel.app";
+
 export function FinalShareCard({
   onRestart,
   onCreatePermalink,
   summaryHref = "/wrapped/summary",
   permalinkBlocked = false,
 }: FinalShareCardProps) {
-  const [permalinkState, setPermalinkState] = useState<
-    "idle" | "creating" | "ready" | "failed"
-  >("idle");
   const [permalink, setPermalink] = useState<string | null>(null);
-  const [shareState, setShareState] = useState<"idle" | "shared">("idle");
+  const [busy, setBusy] = useState(false);
+  const [shareState, setShareState] = useState<"idle" | "shared" | "failed">(
+    "idle",
+  );
 
-  const fallbackUrl = "https://groupchatwrapped.vercel.app";
-
-  const onShare = async (e: React.MouseEvent) => {
+  const handleShare = async (e: React.MouseEvent) => {
     e.stopPropagation();
-    const url = permalink ?? fallbackUrl;
-    if (navigator.share) {
+    if (busy || permalinkBlocked) return;
+    setBusy(true);
+    let url = permalink;
+    if (!url && onCreatePermalink) {
+      const created = await onCreatePermalink();
+      if (created) {
+        url = created;
+        setPermalink(created);
+      }
+    }
+    if (!url) url = FALLBACK_URL;
+
+    let shared = false;
+    if (typeof navigator !== "undefined" && navigator.share) {
       try {
         await navigator.share({
           title: "Group Chat Wrapped",
-          text: permalink
-            ? "look at this wrapped of our group chat"
-            : "wrap your WhatsApp group chat. see who's the yapper.",
+          text: url === FALLBACK_URL
+            ? "wrap your WhatsApp group chat. see who's the yapper."
+            : "look at this wrapped of our group chat",
           url,
         });
-        setShareState("shared");
-        setTimeout(() => setShareState("idle"), 2000);
+        shared = true;
       } catch {}
-      return;
     }
-    try {
-      await navigator.clipboard.writeText(url);
-      setShareState("shared");
-      setTimeout(() => setShareState("idle"), 2000);
-    } catch {}
+    if (!shared) {
+      try {
+        await navigator.clipboard.writeText(url);
+        shared = true;
+      } catch {}
+    }
+    setShareState(shared ? "shared" : "failed");
+    setBusy(false);
+    setTimeout(() => setShareState("idle"), 2200);
   };
 
-  const onMakePermalink = async (e: React.MouseEvent) => {
-    e.stopPropagation();
-    if (!onCreatePermalink) return;
-    setPermalinkState("creating");
-    const url = await onCreatePermalink();
-    if (!url) {
-      setPermalinkState("failed");
-      return;
-    }
-    setPermalink(url);
-    setPermalinkState("ready");
-    try {
-      await navigator.clipboard.writeText(url);
-    } catch {}
-  };
+  const buttonLabel = permalinkBlocked
+    ? "AI is cooking the verdict…"
+    : busy
+      ? "creating share link…"
+      : shareState === "shared"
+        ? permalink
+          ? "✓ link copied"
+          : "✓ shared"
+        : shareState === "failed"
+          ? "couldn't share — try again"
+          : "share my wrapped →";
 
   return (
     <CardShell
@@ -83,35 +93,19 @@ export function FinalShareCard({
 
       <div className="relative z-30 mt-8 sm:mt-10 flex flex-col gap-3 animate-float-up [animation-delay:120ms]">
         <button
-          onClick={onShare}
-          className="rounded-full bg-zinc-900 text-white py-3.5 px-6 text-sm sm:text-base font-bold hover:bg-zinc-800 transition"
+          onClick={handleShare}
+          disabled={permalinkBlocked || busy}
+          className="rounded-full bg-zinc-900 text-white py-3.5 px-6 text-sm sm:text-base font-bold hover:bg-zinc-800 transition disabled:opacity-60"
         >
-          {shareState === "shared"
-            ? "✓ shared"
-            : permalink
-              ? "share my wrapped →"
-              : "share this site →"}
+          {buttonLabel}
         </button>
-        {onCreatePermalink && permalinkState !== "ready" && (
-          <button
-            onClick={onMakePermalink}
-            disabled={permalinkState === "creating" || permalinkBlocked}
-            className="rounded-full border-2 border-zinc-900/20 py-3 px-6 text-xs sm:text-sm font-bold text-zinc-900 hover:bg-white/30 transition disabled:opacity-60"
-          >
-            {permalinkBlocked
-              ? "AI is cooking the verdict…"
-              : permalinkState === "creating"
-                ? "creating link…"
-                : permalinkState === "failed"
-                  ? "permalink unavailable"
-                  : "create permalink to my wrapped"}
-          </button>
-        )}
-        {permalink && (
-          <p className="text-xs text-center opacity-70 break-all">
-            {permalink}
-          </p>
-        )}
+        <Link
+          href={summaryHref}
+          onClick={(e) => e.stopPropagation()}
+          className="rounded-full border-2 border-zinc-900/20 py-3.5 px-6 text-sm sm:text-base font-bold text-center hover:bg-white/30 transition"
+        >
+          see detailed stats →
+        </Link>
         <Link
           href="/"
           onClick={(e) => {
@@ -122,13 +116,11 @@ export function FinalShareCard({
         >
           wrap another chat
         </Link>
-        <Link
-          href={summaryHref}
-          onClick={(e) => e.stopPropagation()}
-          className="text-xs text-center opacity-60 hover:opacity-100 underline underline-offset-4 mt-1"
-        >
-          see all stats →
-        </Link>
+        {permalink && shareState === "shared" && (
+          <p className="text-xs text-center opacity-70 break-all px-2">
+            {permalink}
+          </p>
+        )}
       </div>
     </CardShell>
   );
